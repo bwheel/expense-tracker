@@ -1,0 +1,199 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement()) @map("id")
+  createDate DateTime  @default(now()) @map("create_date")
+  updateDate DateTime  @default(now()) @map("update_Date")
+  deleteDate DateTime? @map("delete_Date")
+
+  email             String          @unique @map("email")
+  preferredName     String?         @map("preferred_name")
+  firstName         String?         @map("first_name")
+  lastName          String?         @map("last_name")
+  currentPassword   Password        @relation(fields: [currentPasswordId], references: [id])
+  currentPasswordId Int             @map("current_password_id")
+  UserToAccount     UserToAccount[]
+  Expense           Expense[]
+
+  @@map("users")
+}
+
+model UserToAccount {
+  id         Int       @id @default(autoincrement()) @map("id")
+  createDate DateTime  @default(now()) @map("create_date")
+  updateDate DateTime  @default(now()) @map("update_Date")
+  deleteDate DateTime? @map("delete_Date")
+
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id])
+
+  accountId Int     @map("account_id")
+  account   Account @relation(fields: [accountId], references: [id])
+
+  @@map("users_to_accounts")
+}
+
+model Password {
+  id         Int       @id @default(autoincrement()) @map("id")
+  createDate DateTime  @default(now()) @map("create_date")
+  updateDate DateTime  @default(now()) @map("update_Date")
+  deleteDate DateTime? @map("delete_Date")
+
+  password String @map("password")
+  salt     String @map("salt")
+  workCost Int    @map("work_cost")
+  User     User[]
+
+  @@map("passwords")
+}
+
+model Category {
+  id         Int       @id @default(autoincrement()) @map("id")
+  createDate DateTime  @default(now()) @map("create_date")
+  updateDate DateTime  @default(now()) @map("update_Date")
+  deleteDate DateTime? @map("delete_Date")
+
+  name    String    @map("name")
+  Expense Expense[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id         Int       @id @default(autoincrement()) @map("id")
+  createDate DateTime  @default(now()) @map("create_date")
+  updateDate DateTime  @default(now()) @map("update_Date")
+  deleteDate DateTime? @map("delete_Date")
+
+  name         String         @map("name")
+  ExpenseToTag ExpenseToTag[]
+
+  @@map("tags")
+}
+
+model Account {
+  id         Int       @id @default(autoincrement()) @map("id")
+  createDate DateTime  @default(now()) @map("create_date")
+  updateDate DateTime  @default(now()) @map("update_Date")
+  deleteDate DateTime? @map("delete_Date")
+
+  accountType      AccountType        @default(CREDIT) @map("account_type")
+  currentBalance   Int                @default(0) @map("current_balance")
+  UserToAccount    UserToAccount[]
+  CompanyToAccount CompanyToAccount[]
+  Transaction      Transaction[]
+
+  @@map("accounts")
+}
+
+enum AccountType {
+  CREDIT
+  DEBIT
+
+  @@map("account_Types")
+}
+
+model Company {
+  id         Int       @id @default(autoincrement()) @map("id")
+  createDate DateTime  @default(now()) @map("create_date")
+  updateDate DateTime  @default(now()) @map("update_Date")
+  deleteDate DateTime? @map("delete_Date")
+
+  name             String             @map("name")
+  CompanyToAccount CompanyToAccount[]
+  Expense          Expense[]
+
+  @@map("companies")
+}
+
+model CompanyToAccount {
+  id         Int       @id @default(autoincrement()) @map("id")
+  createDate DateTime  @default(now()) @map("create_date")
+  updateDate DateTime  @default(now()) @map("update_Date")
+  deleteDate DateTime? @map("delete_Date")
+
+  companyId Int     @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id])
+
+  accountId Int     @map("account_id")
+  account   Account @relation(fields: [accountId], references: [id])
+
+  @@map("companies_to_accounts")
+}
+
+model Transaction {
+  id         Int       @id @default(autoincrement()) @map("id")
+  createDate DateTime  @default(now()) @map("create_date")
+  updateDate DateTime  @default(now()) @map("update_Date")
+  deleteDate DateTime? @map("delete_Date")
+
+  amount               Int                    @map("amount")
+  accountId            Int                    @map("account_id")
+  account              Account                @relation(fields: [accountId], references: [id])
+  ExpenseToTransaction ExpenseToTransaction[]
+
+  @@map("transactions")
+}
+
+model Expense {
+  id         Int       @id @default(autoincrement()) @map("id")
+  createDate DateTime  @default(now()) @map("create_date")
+  updateDate DateTime  @default(now()) @map("update_Date")
+  deleteDate DateTime? @map("delete_Date")
+
+  expenseDate DateTime? @map("expense_date")
+
+  companyId Int     @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id])
+
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id])
+
+  categoryId Int      @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  ExpenseToTag         ExpenseToTag[]
+  ExpenseToTransaction ExpenseToTransaction[]
+
+  @@map("expenses")
+}
+
+model ExpenseToTag {
+  id         Int       @id @default(autoincrement()) @map("id")
+  createDate DateTime  @default(now()) @map("create_date")
+  updateDate DateTime  @default(now()) @map("update_Date")
+  deleteDate DateTime? @map("delete_Date")
+
+  expenseId Int     @map("expense_id")
+  expense   Expense @relation(fields: [expenseId], references: [id])
+
+  tagId Int @map("tag_id")
+  tag   Tag @relation(fields: [tagId], references: [id])
+
+  @@map("expenses_to_tags")
+}
+
+model ExpenseToTransaction {
+  id         Int       @id @default(autoincrement()) @map("id")
+  createDate DateTime  @default(now()) @map("create_date")
+  updateDate DateTime  @default(now()) @map("update_Date")
+  deleteDate DateTime? @map("delete_Date")
+
+  expenseId Int     @map("expense_id")
+  expense   Expense @relation(fields: [expenseId], references: [id])
+
+  transactionId Int         @map("transaction_id")
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+
+  @@map("expenses_to_transactions")
+}
