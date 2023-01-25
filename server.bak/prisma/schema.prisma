@@ -10,11 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-generator tsed {
-  provider = "tsed-prisma"
-  output = "../src/data/tsed"
-}
-
 model User {
   id         Int       @id @default(autoincrement()) @map("id")
   createDate DateTime  @default(now()) @map("create_date")
